@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerMovment : MonoBehaviour
 {
@@ -9,8 +10,13 @@ public class PlayerMovment : MonoBehaviour
     [SerializeField] float jumpForce = 300f;
     [SerializeField] Transform leftfoot, rightFoot;
     [SerializeField] LayerMask whatIsGround;
+    [SerializeField] Transform spawnPos;
+    [SerializeField] Slider hpSlider;
     bool isGrounded;
     float rayDistance = 0.25f;
+
+    int playerStartHp = 5;
+    int currenthp = 0;
 
     private float horizontalValue;
     private Rigidbody2D rgbd;
@@ -22,6 +28,9 @@ public class PlayerMovment : MonoBehaviour
         rgbd = GetComponent<Rigidbody2D>();
         sprRender = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
+
+        currenthp = playerStartHp;
+        hpSlider.value = currenthp;
     }
 
     // Update is called once per frame
@@ -48,6 +57,8 @@ public class PlayerMovment : MonoBehaviour
         anim.SetFloat("MoveSpeed", Mathf.Abs(rgbd.velocity.x));
         anim.SetFloat("VerticalSpeed", rgbd.velocity.y);
         anim.SetBool("IsGrounded", CheckIfGrounded());
+
+
     }
     void FixedUpdate()
     {
@@ -63,6 +74,26 @@ public class PlayerMovment : MonoBehaviour
     void Jump()
     {
         rgbd.AddForce(new Vector2(0, jumpForce));
+    }
+
+    public void TakeDamage(int dmg)
+    {
+        currenthp -= dmg;
+        hpSlider.value = currenthp;
+
+        if (currenthp <= 0)
+        {
+            Respawn();
+        }
+    }
+
+    void Respawn()
+    {
+        currenthp = playerStartHp;
+        hpSlider.value = currenthp;
+
+        transform.position = spawnPos.position;
+        rgbd.velocity = Vector2.zero;
     }
 
     bool CheckIfGrounded()
