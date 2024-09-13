@@ -11,6 +11,9 @@ public class EnemyRock : MonoBehaviour
     float killBounc = 500;
     float DmgBounc = 100;
     [SerializeField] int dmg = 1;
+
+    [SerializeField] float knockbackForceSide = 200f;
+    [SerializeField] float knockbackForceUp = 100f;
     private SpriteRenderer sprRender;
 
     // Update is called once per frame
@@ -49,16 +52,19 @@ public class EnemyRock : MonoBehaviour
 
         if (other.gameObject.CompareTag("Player"))
         {
-            // Bounce
-            Rigidbody2D playerRig = other.gameObject.GetComponent<Rigidbody2D>();
-
-            float saveVelocityX = playerRig.velocity.x;
-
-            playerRig.velocity = new Vector2(playerRig.velocity.x, 0);
-            playerRig.AddForce(new Vector2(killBounc * moveSpeed, 0));
-
             // Dmg
             other.gameObject.GetComponent<PlayerMovment>().TakeDamage(dmg);
+
+            //KnockBack
+
+            if (other.transform.position.x > transform.position.x)
+            {
+                other.gameObject.GetComponent<PlayerMovment>().TakeKnockBack(knockbackForceSide, knockbackForceUp);
+            }
+            else
+            {
+                other.gameObject.GetComponent<PlayerMovment>().TakeKnockBack(-knockbackForceSide, knockbackForceUp);
+            }
         }
     }
 

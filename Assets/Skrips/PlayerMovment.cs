@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class PlayerMovment : MonoBehaviour
 {
@@ -12,11 +14,21 @@ public class PlayerMovment : MonoBehaviour
     [SerializeField] LayerMask whatIsGround;
     [SerializeField] Transform spawnPos;
     [SerializeField] Slider hpSlider;
+    [SerializeField] Image fillColor;
+    [SerializeField] TMP_Text appleText;
+
     bool isGrounded;
     float rayDistance = 0.25f;
 
+    public int dirNum = 0;
+    public bool hasPineApple = false;
+
     int playerStartHp = 5;
     int currenthp = 0;
+
+    public int applesCollected = 0;
+
+    bool canMove = true;
 
     private float horizontalValue;
     private Rigidbody2D rgbd;
@@ -30,7 +42,8 @@ public class PlayerMovment : MonoBehaviour
         anim = GetComponent<Animator>();
 
         currenthp = playerStartHp;
-        hpSlider.value = currenthp;
+        updateHpSlider();
+        uppdateApples();
     }
 
     // Update is called once per frame
@@ -41,11 +54,13 @@ public class PlayerMovment : MonoBehaviour
 
         if (horizontalValue < 0)
         {
+            dirNum = 1;
             FlipSprite(true);
         }
 
         if (horizontalValue > 0)
         {
+            dirNum = 0;
             FlipSprite(false);
         }
 
@@ -62,8 +77,47 @@ public class PlayerMovment : MonoBehaviour
     }
     void FixedUpdate()
     {
+        if (canMove == false)
+        {
+            return;
+        }
+
         rgbd.velocity = new Vector2(horizontalValue * moveSpeed, rgbd.velocity.y);
         Debug.DrawRay(rightFoot.position, Vector2.down * rayDistance, Color.red, 0.25f);
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Apple"))
+        {
+            Destroy(other.gameObject);
+            applesCollected++;
+            uppdateApples();
+        }
+
+        if (other.CompareTag("HpBack"))
+        {
+            RestoreHp(other.gameObject);
+        }
+    }
+
+    void RestoreHp(GameObject hpBack)
+    {
+        if (currenthp >= playerStartHp)
+        {
+            return;
+        }
+        else
+        {
+            currenthp += hpBack.GetComponent<HpPickUp>().HpRestored;
+            updateHpSlider();
+            Destroy(hpBack);
+        }
+    }
+
+    void uppdateApples()
+    {
+        appleText.text = applesCollected.ToString();
     }
 
     void FlipSprite(bool dir)
@@ -79,7 +133,7 @@ public class PlayerMovment : MonoBehaviour
     public void TakeDamage(int dmg)
     {
         currenthp -= dmg;
-        hpSlider.value = currenthp;
+        updateHpSlider();
 
         if (currenthp <= 0)
         {
@@ -90,10 +144,36 @@ public class PlayerMovment : MonoBehaviour
     void Respawn()
     {
         currenthp = playerStartHp;
-        hpSlider.value = currenthp;
+        updateHpSlider();
 
         transform.position = spawnPos.position;
         rgbd.velocity = Vector2.zero;
+    }
+
+    void updateHpSlider()
+    {
+        hpSlider.value = currenthp;
+
+        if (currenthp >= 2)
+        {
+            fillColor.color = Color.red;
+        }
+        else
+        {
+            fillColor.color = Color.magenta;
+        }
+    }
+
+    public void TakeKnockBack(float knockbackForceSide, float knockbackForceUp)
+    {
+        canMove = false;
+        rgbd.AddForce(new Vector2(knockbackForceSide, knockbackForceUp));
+        Invoke("CanMoveAgain", 0.25f);
+    }
+
+    void CanMoveAgain()
+    {
+        canMove = true;
     }
 
     bool CheckIfGrounded()

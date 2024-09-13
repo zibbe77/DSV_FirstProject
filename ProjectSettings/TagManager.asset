@@ -7,6 +7,8 @@ TagManager:
   - Ground
   - EnemyBlock
   - Enemy
+  - Apple
+  - HpBack
   layers:
   - Default
   - TransparentFX
@@ -18,7 +20,7 @@ TagManager:
   - Enemy
   - EnemyBlock
   - Player
-  - 
+  - Platform
   - 
   - 
   - 
@@ -41,6 +43,12 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: BackGround
+    uniqueID: 2304830583
+    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: ForGround
+    uniqueID: 3128639091
     locked: 0
