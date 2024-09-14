@@ -8,6 +8,7 @@ public class MovingPlatforms : MonoBehaviour
     [SerializeField] Transform target1, target2;
     [SerializeField] float moveSpeed = 2f;
 
+    public bool active = false;
 
     Transform currentTarget;
     void Start()
@@ -18,6 +19,11 @@ public class MovingPlatforms : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (active == false)
+        {
+            return;
+        }
+
         if (transform.position == target1.position)
         {
             currentTarget = target2;

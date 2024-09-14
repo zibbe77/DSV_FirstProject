@@ -5,6 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Unity.Mathematics;
 
 public class PlayerMovment : MonoBehaviour
 {
@@ -16,6 +17,11 @@ public class PlayerMovment : MonoBehaviour
     [SerializeField] Slider hpSlider;
     [SerializeField] Image fillColor;
     [SerializeField] TMP_Text appleText;
+    [SerializeField] GameObject applePartical, dust;
+
+    [SerializeField] AudioClip pickupSound;
+    [SerializeField] AudioClip[] jumpSounds;
+
 
     bool isGrounded;
     float rayDistance = 0.25f;
@@ -34,12 +40,14 @@ public class PlayerMovment : MonoBehaviour
     private Rigidbody2D rgbd;
     private SpriteRenderer sprRender;
     Animator anim;
-    // Start is called before the first frame update
+    AudioSource audioSource;
+
     void Start()
     {
         rgbd = GetComponent<Rigidbody2D>();
         sprRender = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
 
         currenthp = playerStartHp;
         updateHpSlider();
@@ -83,7 +91,6 @@ public class PlayerMovment : MonoBehaviour
         }
 
         rgbd.velocity = new Vector2(horizontalValue * moveSpeed, rgbd.velocity.y);
-        Debug.DrawRay(rightFoot.position, Vector2.down * rayDistance, Color.red, 0.25f);
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -93,11 +100,17 @@ public class PlayerMovment : MonoBehaviour
             Destroy(other.gameObject);
             applesCollected++;
             uppdateApples();
+
+            audioSource.pitch = UnityEngine.Random.Range(0.8f, 1.2f);
+            audioSource.PlayOneShot(pickupSound, 0.5f);
+            Instantiate(applePartical, other.transform.position, Quaternion.identity);
         }
 
         if (other.CompareTag("HpBack"))
         {
             RestoreHp(other.gameObject);
+
+            audioSource.PlayOneShot(pickupSound, 0.5f);
         }
     }
 
@@ -128,6 +141,11 @@ public class PlayerMovment : MonoBehaviour
     void Jump()
     {
         rgbd.AddForce(new Vector2(0, jumpForce));
+
+        int randomNum = UnityEngine.Random.Range(0, 0);
+
+        audioSource.PlayOneShot(jumpSounds[randomNum], 0.5f);
+        Instantiate(dust, transform.position, Quaternion.identity);
     }
 
     public void TakeDamage(int dmg)

@@ -9,6 +9,7 @@ public class QuestGiver : MonoBehaviour
     [SerializeField] GameObject textPopUp;
     [SerializeField] GameObject doneTextPopUp;
     [SerializeField] GameObject pineApple;
+    [SerializeField] MovingPlatforms platform;
 
     void OnTriggerEnter2D(Collider2D other)
     {
@@ -18,7 +19,7 @@ public class QuestGiver : MonoBehaviour
             {
                 done = true;
                 Destroy(pineApple);
-                //  move dorr
+                platform.active = true;
             }
             if (done == false)
             {

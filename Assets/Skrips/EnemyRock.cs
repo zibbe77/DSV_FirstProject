@@ -9,12 +9,13 @@ public class EnemyRock : MonoBehaviour
     float moveSpeed = 2.0f;
     [SerializeField]
     float killBounc = 500;
-    float DmgBounc = 100;
     [SerializeField] int dmg = 1;
 
     [SerializeField] float knockbackForceSide = 200f;
     [SerializeField] float knockbackForceUp = 100f;
     private SpriteRenderer sprRender;
+
+    bool isDead = false;
 
     // Update is called once per frame
 
@@ -24,6 +25,11 @@ public class EnemyRock : MonoBehaviour
     }
     void FixedUpdate()
     {
+        if (isDead == true)
+        {
+            return;
+        }
+
         transform.Translate(new Vector2(moveSpeed, 0) * Time.deltaTime);
 
         if (moveSpeed > 0)
@@ -74,7 +80,15 @@ public class EnemyRock : MonoBehaviour
         {
             other.GetComponent<Rigidbody2D>().velocity = new Vector2(other.GetComponent<Rigidbody2D>().velocity.x, 0);
             other.GetComponent<Rigidbody2D>().AddForce(new Vector2(0, killBounc));
-            Destroy(this.gameObject);
+
+            GetComponent<Animator>().SetTrigger("Hit");
+            GetComponent<BoxCollider2D>().enabled = false;
+            GetComponent<CircleCollider2D>().enabled = false;
+            GetComponent<Rigidbody2D>().gravityScale = 0;
+            GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+            isDead = true;
+
+            Destroy(this.gameObject, 1f);
         }
     }
 
